@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Edde">
+    <title>AlgViewer</title>
+    <script src="cmll.js" ></script>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+        img {
+            height: 128px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        table, th, td {
+         border: 1px solid black;
+         border-collapse: collapse; 
+        }
+        td, th {
+            padding: 10px;
+        }
+        .center {
+            margin: auto;
+            width: 50%;
+        }
+        .collapsible {
+            float: right;
+            cursor: pointer;
+            border: none;
+            text-align: center;
+            outline: none;
+        }
+        .active, .collapsible:hover {
+            background-color: #ccc;
+        }
+        .coll-content {
+            display: none;
+            overflow: hidden;
+        }
+        .imageWrapper {
+            position: relative;
+        }
+        .overlayImage {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+            <span class="close">&times;</span>
+            <table id="algTable">
+            </table>
+            </div>
+        </div>
+        <div class="center">
+            <table id="mainTable">
+            </table>
+        </div>
+    </div>
+</body>
+<script>
+    var personal_algs_name = algdb_name+"_standard";
+    var personalAlgs;
+
+    function loadPersonalAlgs() {
+        let personalAlgsStr = localStorage.getItem(personal_algs_name);
+        if (personalAlgsStr === null) {
+            personalAlgs = {};
+        } else {
+            personalAlgs = JSON.parse(personalAlgsStr);
+        }
+    }
+    loadPersonalAlgs();
+
+    var modal = document.getElementById("myModal");
+    var span = document.getElementsByClassName("close")[0];
+    var mainCell = document.getElementsByClassName("mainCell");
+    var algTable = document.getElementById("algTable");
+    var mainTable = document.getElementById("mainTable");
+    var mainTableFilter = {};
+    var algTableFilter = {};
+
+    function getAlg(idname) {
+        if (personalAlgs.hasOwnProperty(idname)){
+            return personalAlgs[idname];
+        } else {
+            return 0;
+        }
+    };
+
+    function sortTable(header_obj, n) {
+    var table, sort_type, rows, switching, i, x, x_comp, y, y_comp, shouldSwitch, dir, switchcount = 0;
+    table = header_obj.parentNode.parentNode.parentNode;
+    sort_type = header_obj.getAttribute("data-sort");
+    if (sort_type != "no-sort"){
+        switching = true;
+        dir = "asc";
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+            for (i = 1; i < (rows.length - 1); i++) {
+            shouldSwitch = false;
+            x = rows[i].getElementsByTagName("TD")[n];
+            y = rows[i + 1].getElementsByTagName("TD")[n];
+            x_comp = x.innerHTML.toLowerCase();
+            y_comp = y.innerHTML.toLowerCase();
+            if (sort_type == "num") {
+                x_comp = Number(x_comp);
+                y_comp = Number(y_comp);
+            }
+            if (dir == "asc") {
+                if (x_comp > y_comp) {
+                shouldSwitch = true;
+                break;
+                }
+            } else if (dir == "desc") {
+                if (x_comp < y_comp) {
+                shouldSwitch = true;
+                break;
+                }
+            }
+            }
+            if (shouldSwitch) {
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+            switchcount ++;
+            } else {
+            if (switchcount == 0 && dir == "asc") {
+                dir = "desc";
+                switching = true;
+            }
+            }
+        }
+    }
+    }
+
+    function displayModal(case_id) {
+        fillAlgTable(case_id);
+        modal.style.display = "block";
+    }
+    function closeModal() {
+        let old_tBody = document.getElementById("modal_tBody");
+        old_tBody.remove();
+        let old_tHead = document.getElementById("modal_tHead");
+        old_tHead.remove();
+        modal.style.display = "none";
+    }
+    function fillAlgTable(case_id){
+        let table_len = algdb.algHeader.length;
+        let tHead_obj = algTable.createTHead();
+        tHead_obj.id = "modal_tHead";
+        let headrow = tHead_obj.insertRow(-1);
+        let filter_columns = [];
+        for (let i=0; i<table_len; i++){
+            let elem = algdb["algHeader"][i];
+            let headcell = document.createElement("th");
+            let span_obj = document.createElement("span");
+            span_obj.innerText = elem.value
+            span_obj.setAttribute("data-sort", elem.sort);
+            span_obj.setAttribute("onclick", "sortTable(this, "+i.toString()+")");
+            headcell.appendChild(span_obj);
+            if (elem.filter == "dropdown") {
+                filter_columns.push(i);
+                let btn_elem = document.createElement("button");
+                btn_elem.innerHTML = "Filter";
+                btn_elem.type="button";
+                btn_elem.classList.add("collapsible");
+                btn_elem.addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    var content = this.nextElementSibling;
+                    if (content.style.display === "block") {
+                    content.style.display = "none";
+                    } else {
+                    content.style.display = "block";
+                    }
+                });
+                let select_div = document.createElement("div");
+                select_div.classList.add("coll-content");
+                let select_elem = document.createElement("select");
+                select_elem.multiple = true;
+                select_elem.setAttribute("onchange", "filterAddSelect(this, "+i.toString()+")");
+                select_div.appendChild(select_elem);
+                headcell.appendChild(btn_elem);
+                headcell.appendChild(select_div);
+            }
+            headrow.appendChild(headcell);
+        }
+        let tBody_obj = document.createElement("tBody");
+        tBody_obj.id = "modal_tBody";
+        algTable.appendChild(tBody_obj);
+        for (alg_id in algdb["algset"][case_id]["algs"]) {
+            let row = tBody_obj.insertRow(-1);
+            row.id = alg_id;
+            row.setAttribute("onclick", "updateSelectedAlg('"+case_id+"', "+alg_id+");");
+            for (let i=0; i<table_len; i++) {
+                let cell_elem = row.insertCell(-1);
+                let cell_id = algdb["algHeader"][i]["id"];
+                let cell_type = algdb["algHeader"][i]["type"];
+                let cell_data = algdb["algset"][case_id]["algs"][alg_id][cell_id];
+                if (cell_type == "str") {
+                    cell_elem.innerText = cell_data;
+                }
+                if (filter_columns.includes(i)) {
+                    let sel_obj = headrow.cells[i].getElementsByTagName("select")[0];
+                    let opt_obj = document.createElement("option");
+                    opt_obj.value = cell_data;
+                    opt_obj.text = cell_data;
+                    sel_obj.add(opt_obj);
+                }
+            }
+        }
+    }
+    function fillMainTable(){
+        let table_len = algdb.mainHeader.length;
+        let tHead_obj = mainTable.createTHead();
+        let headrow = tHead_obj.insertRow(-1);
+        let filter_columns = [];
+        for (let i=0; i<table_len; i++){
+            let elem = algdb["mainHeader"][i];
+            let headcell = document.createElement("th");
+            let span_obj = document.createElement("span");
+            span_obj.innerText = elem.value
+            span_obj.setAttribute("data-sort", elem.sort);
+            span_obj.setAttribute("onclick", "sortTable(this, "+i.toString()+")");
+            headcell.appendChild(span_obj);
+            if (elem.filter == "dropdown") {
+                filter_columns.push(i);
+                let btn_elem = document.createElement("button");
+                btn_elem.innerHTML = "Filter";
+                btn_elem.type="button";
+                btn_elem.classList.add("collapsible");
+                btn_elem.addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    var content = this.nextElementSibling;
+                    if (content.style.display === "block") {
+                    content.style.display = "none";
+                    } else {
+                    content.style.display = "block";
+                    }
+                });
+                let select_div = document.createElement("div");
+                select_div.classList.add("coll-content");
+                let select_elem = document.createElement("select");
+                select_elem.multiple = true;
+                select_elem.setAttribute("onchange", "filterAddSelect(this, "+i.toString()+")");
+                select_div.appendChild(select_elem);
+                headcell.appendChild(btn_elem);
+                headcell.appendChild(select_div);
+            }
+            headrow.appendChild(headcell);
+        }
+        let tBody_obj = document.createElement("tBody");
+        mainTable.appendChild(tBody_obj);
+        for (let case_id in algdb["algset"]) {
+            let row = tBody_obj.insertRow(-1);
+            row.id = case_id;
+            for (let i=0; i<table_len; i++) {
+                let cell_elem = row.insertCell(-1);
+                let cell_id = algdb["mainHeader"][i]["id"];
+                let cell_type = algdb["mainHeader"][i]["type"];
+                let curr_alg = getAlg(case_id);
+                let cell_data = {};
+                let cell_data_check = false;
+                if (algdb["algset"][case_id].hasOwnProperty(cell_id)) {
+                    if (typeof algdb["algset"][case_id][cell_id] === "object") {
+                        Object.assign(cell_data, algdb["algset"][case_id][cell_id]);
+                    } else {
+                        cell_data = algdb["algset"][case_id][cell_id];
+                    }
+                    cell_data_check = true;
+                }
+                if (algdb["algset"][case_id]["algs"][curr_alg].hasOwnProperty(cell_id)){
+                    if (typeof algdb["algset"][case_id]["algs"][curr_alg][cell_id] === "object") {
+                        Object.assign(cell_data, algdb["algset"][case_id]["algs"][curr_alg][cell_id]);
+                    } else {
+                        cell_data = algdb["algset"][case_id]["algs"][curr_alg][cell_id];
+                    }
+                    cell_data_check = true;
+                }
+                if (cell_data_check) {
+                    if (cell_type == "str") {
+                        cell_elem.innerText = cell_data;
+                    } else if (cell_type == "img") {
+                        let img = document.createElement("img");
+                        img.src = cell_data["src"];
+                        img.style = "transform: rotate("+cell_data["rot"]+"deg);";
+                        cell_elem.appendChild(img);
+                    } else if (cell_type == "img_overlay") {
+                        let img_div = document.createElement("div");
+                        img_div.classList.add("imageWrapper");
+                        for (let j in cell_data){
+                            let img = document.createElement("img");
+                            img.src = cell_data[j]["src"];
+                            img.style = "transform: rotate("+cell_data[j]["rot"]+"deg);";
+                            if (j != 0) {
+                                img.classList.add("overlayImage");
+                            }
+                            img_div.appendChild(img);
+                        }
+                        cell_elem.appendChild(img_div);
+                    } else if (cell_type == "alg") {
+                        cell_elem.innerText = algdb["algset"][case_id]["algs"][curr_alg]["alg"];
+                        cell_elem.setAttribute("onclick", "displayModal('"+case_id+"');");
+                    }
+                    if (filter_columns.includes(i)) {
+                        let sel_obj = headrow.cells[i].getElementsByTagName("select")[0];
+                        let opt_obj = document.createElement("option");
+                        opt_obj.value = cell_data;
+                        opt_obj.text = cell_data;
+                        sel_obj.add(opt_obj);
+                    }
+                }
+            }
+        }
+    }
+    function filterAddSelect(header_obj, n) {
+        var i, table_obj, selected_array;
+        table_obj = header_obj.parentNode.parentNode.parentNode.parentNode.parentNode;
+        selected_array = [];
+        let options_array = header_obj.options;
+        for (i = 0; i < options_array.length; i++) {
+            if (options_array[i].selected) {
+                selected_array.push(options_array[i].value || options_array[i].text)
+            }
+        }
+        if (table_obj.id == "mainTable") {
+            mainTableFilter[n] = selected_array;
+            filterTable(mainTableFilter, table_obj);
+        } else {
+            algTableFilter[n] = selected_array;
+            filterTable(algTableFilter, table_obj);
+        }
+    }
+    function filterTable(filter_obj, table_obj) {
+        var i, j, keep_row, tr, txtValue, tbody_obj;
+        tbody_obj = table_obj.tBodies[0];
+        tr = tbody_obj.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            for (let x in filter_obj){
+                td = tr[i].getElementsByTagName("td")[x];
+                keep_row = false;
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    for (j = 0; j < filter_obj[x].length; j++){
+                        if (txtValue.indexOf(filter_obj[x][j]) > -1) {
+                            keep_row = true;
+                        }
+                    }
+                }
+                if (!keep_row) {
+                    break;
+                }
+            }
+            if (keep_row) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+    function updateSelectedAlg(case_id, selected_alg) {
+        personalAlgs[case_id] = selected_alg;
+        let personalAlgsStr = JSON.stringify(personalAlgs);
+        localStorage.setItem(personal_algs_name, personalAlgsStr);
+        let row_to_change = document.getElementById(case_id);
+        for (let i=0; i<row_to_change.cells.length; i++) {
+            let cell_elem = row_to_change.cells[i];
+            let cell_id = algdb["mainHeader"][i]["id"];
+            let cell_type = algdb["mainHeader"][i]["type"];
+            let cell_data = {};
+            let cell_data_check = false;
+            console.log(cell_id);
+            console.log(cell_type);
+            if (algdb["algset"][case_id].hasOwnProperty(cell_id)) {
+                if (typeof algdb["algset"][case_id][cell_id] === "object") {
+                    Object.assign(cell_data, algdb["algset"][case_id][cell_id]);
+                } else {
+                    cell_data = algdb["algset"][case_id][cell_id];
+                }
+                cell_data_check = true;
+            }
+            if (algdb["algset"][case_id]["algs"][selected_alg].hasOwnProperty(cell_id)){
+                if (typeof algdb["algset"][case_id]["algs"][selected_alg][cell_id] === "object") {
+                    Object.assign(cell_data, algdb["algset"][case_id]["algs"][selected_alg][cell_id]);
+                } else {
+                    cell_data = algdb["algset"][case_id]["algs"][selected_alg][cell_id];
+                }
+                cell_data_check = true;
+            }
+            if (cell_data_check) {
+                if (cell_type == "str") {
+                    cell_elem.innerText = cell_data;
+                } else if (cell_type == "img") {
+                    let img = cell_elem.getElementsByTagName("img")[0];
+                    img.src = cell_data["src"];
+                    img.style = "transform: rotate("+cell_data["rot"]+"deg);";
+                } else if (cell_type == "img_overlay") {
+                    let img_div = cell_elem.getElementsByTagName("div")[0];
+                    img_div.innerHTML = "";
+                    for (let j in cell_data){
+                        let img = document.createElement("img");
+                        img.src = cell_data[j]["src"];
+                        img.style = "transform: rotate("+cell_data[j]["rot"]+"deg);";
+                        if (j != 0) {
+                            img.classList.add("overlayImage");
+                        }
+                        img_div.appendChild(img);
+                    }
+                } else if (cell_type == "alg") {
+                    cell_elem.innerText = algdb["algset"][case_id]["algs"][selected_alg]["alg"];
+                    cell_elem.setAttribute("onclick", "displayModal('"+case_id+"');");
+                }
+            }
+        }
+        closeModal();
+    }
+    fillMainTable();
+    
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+        closeModal();
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+    if (event.target == modal) {
+        closeModal();
+    }
+    } 
+</script>
+</html>
