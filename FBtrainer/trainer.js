@@ -327,17 +327,23 @@ class Puzzle {
         return solutions;
     }
     findLongSol(scram, extraMoves) {
-        let randSeq = this.getRandomSeq(extraMoves);
-        let endSeq = this.findSol(scram.concat(randSeq), 1, randSeq[randSeq.length-1]);
-        return invertAlg(randSeq.concat(endSeq[0]));
+        while (true) {
+            let randSeq = this.getRandomSeq(extraMoves);
+            let endSeq = this.findSol(scram.concat(randSeq), 1, randSeq[randSeq.length-1]);
+            if (!(endSeq.length == 0 || endSeq === undefined)) {
+                return invertAlg(randSeq.concat(endSeq[0]));
+            }
+        }
     }
     getMinMoveScrams(seqLen, maxSols, firstMoves) {
         while (true) {
             let randSeq = firstMoves.concat(this.getRandomSeq(seqLen-firstMoves.length));
             let sol = this.findSol(randSeq, maxSols, "");
-            if (sol[0].length == randSeq.length) {
-                let longScram = this.findLongSol(randSeq, 5);
-                return {solutions: [...new Set([invertAlg(randSeq)].concat(sol).map(function temp(value){return value.join(" ");}))], givenScram: longScram.join(" ")};
+            if (!(sol.length == 0 || sol === undefined)) {
+                if (sol[0].length == randSeq.length) {
+                    let longScram = this.findLongSol(randSeq, 5);
+                    return {solutions: [...new Set([invertAlg(randSeq)].concat(sol).map(function temp(value){return value.join(" ");}))], givenScram: longScram.join(" ")};
+                }
             }
         }
     }
