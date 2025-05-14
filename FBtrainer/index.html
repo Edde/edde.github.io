@@ -37,11 +37,19 @@
                     <button type="button" onclick="nextPhase();">Next</button>
                     <label for="mode">Mode:</label>
                     <select id="mode" name="mode">
-                        <option value="zeroMove">0-move FB</option>
+                        <option value="zeroMove" selected>0-move FB</option>
                         <option value="cpfb" disabled>CPFB</option>
                     </select>
                     <label for="level">Level:</label>
-                    <input type="number" id="level" name="level" min="3" max="9" value="3">
+                    <select id="level" name="level">
+                        <option value="3" selected>3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                    </select>
                     <p>Scramble:<br><span id="scramStr"></span></p>
                     <p>Solutions:<br><span id="solStr"></span></p>
                 </div>
