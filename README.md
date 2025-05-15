@@ -1,2 +1,2 @@
-# edde.github.io
-Edde's github pages
+# Edde's github pages
+Mainly for various cubing-related projects.
