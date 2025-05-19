@@ -1,120 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="author" content="Edde">
-        <title>FBtrainer</title>
-        <script type="text/javascript" src="moves.js"></script>
-        <script type="text/javascript" src="constants.js"></script>
-        <script type="text/javascript" src="trainer.js"></script>
-        <script type="text/javascript" src="puzzleGen.min.js"></script>
-        <script type="text/javascript" src="0_move_7_layers.js"></script>
-        <script type="text/javascript" src="cpfb_4_layers.js"></script>
-        <style>
-            .center {
-                margin: auto;
-                width: 80%;
-            }
-            .mainLeft {
-                display:block;
-                float:left;
-                width:auto;
-            }
-            .mainRight {
-                display:inline;
-                float:left;
-            }
-        </style>
-    </head>
-    <body>
-        <div>
-            <div id="main">
-                <div class="mainLeft" id="imgMain"></div>
-                <div class="mainRight" id="scramInfo">
-                    <p>You can also hit enter or spacebar.</p>
-                    <button type="button" onclick="nextPhase();">Next</button>
-                    <label for="mode">Mode:</label>
-                    <select id="mode" name="mode">
-                        <option value="zeroMove" selected>0-move FB</option>
-                        <option value="cpfb" disabled>CPFB</option>
-                    </select>
-                    <label for="level">Level:</label>
-                    <select id="level" name="level">
-                        <option value="3" selected>3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                    </select>
-                    <p>Scramble:<br><span id="scramStr"></span></p>
-                    <p>Solutions:<br><span id="solStr"></span></p>
-                </div>
-            </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Speedcubing Trainer</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="moves.js"></script>
+  <script src="constants.js"></script>
+  <script src="trainer.js"></script>
+  <script src="puzzleGen.min.js"></script>
+  <script src="0_move_7_layers.js"></script>
+  <script src="cpfb_4_layers.js"></script>
+</head>
+<body>
+  <header class="control-bar">
+    <div class="control-card">
+      <div class="control-group">
+        <div class="control-item">
+          <label for="mode">Mode</label>
+          <select id="mode">
+            <option value="zeroMove" selected>0-move FB</option>
+            <option value="cpfb" disabled>CPFB</option>
+          </select>
         </div>
-        <script>
-            const zeroPuzzle = new Puzzle(moves, zeroSolved, zeroSimple, zeroPruneTable, 7, 5);
-            const cpfbPuzzle = new Puzzle(moves, mainSolved, noRotations, cpfbPruneTable, 4, 4);
-            document.onkeydown = function(e) {keyPressFunction(e)}
-            function keyPressFunction(e) {
-                switch (e.which) {
-                    case 32: // spacebar
-                        nextPhase();
-                        break;
-                    case 13: // enter
-                        nextPhase();
-                        break;
-                }
-                e.preventDefault();
-            };
-            let getNewScram = true;
-            let currCase = {};
-            function nextPhase() {
-                if (getNewScram) {
-                    let mode = document.getElementById("mode").value;
-                    let level = Number(document.getElementById("level").value);
-                    switch (mode) {
-                        case "zeroMove":
-                            currCase = zeroPuzzle.getMinMoveScrams(level+1, 10, ["z'"]);
-                            break;
-                        case "cpfb":
-                            currCase = cpfbPuzzle.getMinMoveScrams(level, 5, []);
-                            break;
-                    }
-                    document.getElementById("scramStr").innerHTML = currCase.givenScram;
-                    document.getElementById("solStr").innerHTML = "";
-                    newImage(currCase.givenScram);
-                    getNewScram = false;
-                } else {
-                    document.getElementById("solStr").innerHTML = currCase.solutions.join("<br>");
-                    getNewScram = true;
-                }
-            };
-            const imgOptions = {
-                width: 300,
-                height: 300,
-                strokeWidth: 0.01,
-                puzzle: {
-                    size: 3,
-                    mask: {
-                        "U": [0,1,2,3,4,5,6,7,8],
-                        "R": [0,1,2,3,4,5,6,7,8],
-                        "F": [0,1,2,4,5,7,8],
-                        "D": [1,2,4,5,7,8],
-                        "L": [0,1,2],
-                        "B": [0,1,2,3,4,6,7]
-                    }
-                }
-            };
-            function newImage(algStr) {
-                imgOptions.puzzle.alg = algStr;
-                document.getElementById("imgMain").innerHTML = "";
-                puzzleGen.SVG(document.getElementById("imgMain"), puzzleGen.Type.CUBE_NET, imgOptions);
-            };
-            newImage("");
-        </script>
-    </body>
+        
+        <div class="control-item">
+          <label for="level">Level</label>
+          <select id="level">
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="column left-column">
+      <div id="imgMain" class="cube-display"></div>
+    </div>
+    
+    <div class="column center-column">
+      <div class="scramble-controls">
+        <button id="nextBtn" class="btn">Generate New Scramble</button>
+        <p class="note">Or use Enter/Return Key</p>
+      </div>
+      
+      <div class="scramble-info">
+        <div class="scramble-text">
+          <strong>Scramble:</strong>
+          <div id="scramStr" class="scramble-display"></div>
+        </div>
+        
+        <div class="solution-text">
+          <strong>Solutions:</strong>
+          <div id="solStr" class="solution-display"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="column right-column">
+      <div id="timerDisplay" class="timer">00.00</div>
+      <p class="note">Use Spacebar to Start/Stop</p>
+    </div>
+  </main>
+
+  <section class="history-section">
+    <div class="history-header">
+      <button onclick="exportSession()" class="btn export-btn">Export Session</button>
+      <h2>Session History</h2>
+    </div>
+    
+    <table id="historyTable">
+      <thead>
+        <tr>
+          <th>Mode</th>
+          <th>Level</th>
+          <th>Scramble</th>
+          <th>Time (s)</th>
+          <th>Moves</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button id="showMoreBtn" class="btn show-more-btn" style="display: none;">Show More</button>
+  </section>
+
+  <script src="script.js"></script>
+</body>
 </html>
