@@ -6,8 +6,11 @@ test.html
 /*.json
 /*.csv
 /*.js
+/*.css
 /pruneTables
 !index.html
+!style.css
+!script.js
 !movestest2.js
 !README.md
 !puzzleGen.min.js
