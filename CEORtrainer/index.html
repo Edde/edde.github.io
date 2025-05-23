@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Speedcubing Trainer</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="standardMoves.js"></script>
+  <script src="cpCaseMoves.js"></script>
+  <script src="constants.js"></script>
+  <script src="trainer.js"></script>
+  <script src="puzzleGen.min.js"></script>
+  <script src="data/0move7layersRrUuS.js"></script>
+  <script src="data/0move7layersRrUu.js"></script>
+  <script src="data/rightBlockRU.js"></script>
+  <script src="data/cpfb5layersRrUuFfS.js"></script>
+  <script src="data/cpStateHash.js"></script>
+  <script src="data/cpStateMappings.js"></script>
+</head>
+<body>
+  <header class="control-bar">
+    <div class="control-card">
+      <div class="control-group">
+        <div class="control-item">
+          <label for="mode">Mode</label>
+          <select id="mode" onchange="updateMode();">
+            <option value="zeroMoveS" selected>0-move FB RrUuS</option>
+            <option value="cpfb" >CPFB RrUuFfS</option>
+            <option value="zeroMove">0-move FB RrUu</option>
+            <option value="rb">Right Block</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label for="level">Level</label>
+          <select id="level">
+            <option value="3" id="3" selected>3</option>
+            <option value="4" id="4">4</option>
+            <option value="5" id="5">5</option>
+            <option value="6" id="6">6</option>
+            <option value="7" id="7">7</option>
+            <option value="8" id="8">8</option>
+            <option value="9" id="9">9</option>
+            <option value="10" id="10" style="display: none">10</option>
+            <option value="11" id="11" style="display: none">11</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label for="leftmode">Left hand</label>
+          <input type="checkbox" id="leftmode">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="column left-column">
+      <div id="imgMain" class="cube-display"></div>
+    </div>
+    
+    <div class="column center-column">
+      <div class="scramble-controls">
+        <button id="nextBtn" class="btn">Generate New Scramble</button>
+        <p class="note">Or use Enter/Return Key</p>
+      </div>
+      
+      <div class="scramble-info">
+        <div class="scramble-text">
+          <strong>Scramble:</strong>
+          <div id="scramStr" class="scramble-display"></div>
+        </div>
+        
+        <div class="solution-text">
+          <strong>Solutions:</strong>
+          <div id="solStr" class="solution-display"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="column right-column">
+      <div id="timerDisplay" class="timer">00.00</div>
+      <p class="note">Use Spacebar to Start/Stop</p>
+    </div>
+  </main>
+
+  <section class="history-section">
+    <div class="history-header">
+      <button onclick="exportSession()" class="btn export-btn">Export Session</button>
+      <button onclick="resetSession()" class="btn reset-btn" hidden>Reset Session</button>
+      <h2>Session History</h2>
+    </div>
+    
+    <table id="historyTable">
+      <thead>
+        <tr>
+          <th>Mode</th>
+          <th>Level</th>
+          <th>Scramble</th>
+          <th>Time (s)</th>
+          <th>Moves</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button id="showMoreBtn" class="btn show-more-btn" style="display: none;">Show More</button>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>

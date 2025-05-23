@@ -1,0 +1,252 @@
+const zeroPuzzle = new Puzzle(standardMoves, zeroSolved, movesets.zeroMoves, zeroPruneTable, 7, 5);
+const cpfbPuzzle = new Puzzle(cpMoves, cpfbSolved, movesets.fullSimple, cpfbPruneTable, 5, 4);
+const zeroPuzzleSimple = new Puzzle(standardMoves, zeroSolved, movesets.zeroSimple, zeroPruneTableNoS, 7, 5);
+const rbPuzzle = new Puzzle(standardMoves, rbSolved, movesets.ruMoves, rbPruneTable, 10, 4);
+
+let getNewScram = true;
+let currMode = "zeroMoveS";
+let currImgMask = imgMasks.fb;
+let currCase = {};
+let leftMode = false;
+let timerRunning = false;
+let timerStartTime;
+let timerInterval;
+let currentTime = 0;
+let timerUsed = false;
+let showAllHistory = false;
+const maxVisibleHistory = 5;
+
+const nextBtn = document.getElementById("nextBtn");
+const timerDisplay = document.getElementById("timerDisplay");
+const timerContainer = document.querySelector(".right-column");
+const historyTable = document.getElementById("historyTable").getElementsByTagName("tbody")[0];
+const showMoreBtn = document.getElementById("showMoreBtn");
+
+function newImage(algStr, imgMask) {
+  let imgOptions = {
+    width: 300,
+    height: 300,
+    strokeWidth: 0.01,
+    puzzle: {
+      size: 3,
+      alg: algStr,
+      mask: imgMask
+    }
+  }
+  document.getElementById("imgMain").innerHTML = "";
+  puzzleGen.SVG(document.getElementById("imgMain"), puzzleGen.Type.CUBE_NET, imgOptions);
+}
+
+function updateTimer() {
+  const elapsed = (Date.now() - timerStartTime) / 1000;
+  currentTime = elapsed; // Update currentTime continuously
+  timerDisplay.textContent = elapsed.toFixed(2);
+}
+
+function startTimer() {
+  if (timerUsed) return;
+  timerStartTime = Date.now();
+  timerRunning = true;
+  timerInterval = setInterval(updateTimer, 50);
+}
+
+function stopTimer() {
+  if (!timerRunning) return;
+  clearInterval(timerInterval);
+  timerRunning = false;
+  currentTime = parseFloat(((Date.now() - timerStartTime) / 1000).toFixed(2));
+  timerDisplay.textContent = currentTime.toFixed(2);
+  timerUsed = true;
+}
+
+function updateHistoryVisibility() {
+  const rows = historyTable.rows;
+  const totalRows = rows.length;
+  
+  if (totalRows <= maxVisibleHistory) {
+    showMoreBtn.style.display = 'none';
+    return;
+  }
+  
+  showMoreBtn.style.display = showAllHistory ? 'none' : 'block';
+  
+  for (let i = 0; i < totalRows; i++) {
+    rows[i].style.display = (showAllHistory || i < maxVisibleHistory) ? '' : 'none';
+  }
+}
+
+function updateMode() {
+  currMode = document.getElementById("mode").value;
+  let maxLevel;
+  switch (currMode) {
+    case "zeroMoveS":
+      maxLevel = 9;
+      break;
+    case "cpfb":
+      maxLevel = 8;
+      break;
+    case "zeroMove":
+      maxLevel = 9;
+      break;
+    case "rb":
+      maxLevel = 11;
+      break;
+    case "zeroMoveSLeft":
+      maxLevel = 9;
+      break;
+  };
+  if (document.getElementById("level").value > maxLevel) {
+    document.getElementById(maxLevel).selected = true;
+  }
+  let i;
+  for (i = 9; i <= maxLevel; i++) {
+    let elem = document.getElementById(i);
+    elem.style.display = "";
+  };
+  while (i <= 11) {
+    let elem = document.getElementById(i);
+    elem.style.display = "none";
+    i++;
+  };
+}
+
+function nextPhase() {
+  if (timerRunning) {
+    stopTimer();
+  }
+
+  if (getNewScram) {
+    const level = Number(document.getElementById("level").value);
+    let maskChoice;
+    switch (currMode) {
+      case "zeroMoveS":
+        currCase = zeroPuzzle.getMinMoveScrams(level+1, 10, ["z'"]);
+        maskChoice = "lb";
+        break;
+      case "cpfb":
+        currCase = cpfbPuzzle.getMinMoveScrams(level, 5, []);
+        maskChoice = "lb";
+        break;
+      case "zeroMove":
+        currCase = zeroPuzzleSimple.getMinMoveScrams(level+1, 10, ["z'"]);
+        maskChoice = "lb";
+        break;
+      case "rb":
+        currCase = rbPuzzle.getMinMoveScrams(level, 5, []);
+        maskChoice = "rb";
+        break;
+    }
+    if (document.getElementById("leftmode").checked) {
+      currCase.givenScram = leftAlg(currCase.givenScram.split(" ")).join(" ");
+      leftMode = true;
+      maskChoice = (maskChoice == "lb") ? "rb" : "lb";
+    } else {
+      leftMode = false;
+    }
+    document.getElementById("scramStr").textContent = currCase.givenScram;
+    document.getElementById("solStr").innerHTML = "";
+    newImage(currCase.givenScram, imgMasks[maskChoice]);
+    nextBtn.textContent = "Reveal Solutions";
+    getNewScram = false;
+    timerDisplay.textContent = "00.00";
+    currentTime = 0;
+    timerUsed = false;
+  } else {
+    if (leftMode) {
+      let leftSols = [];
+      for (sol of currCase.solutions) {
+        leftSols.push(leftAlg(sol.split(" ")).join(" "));
+      }
+      document.getElementById("solStr").innerHTML = leftSols.join("<br>");
+    } else {
+      document.getElementById("solStr").innerHTML = currCase.solutions.join("<br>");
+    }
+    nextBtn.textContent = "Generate New Scramble";
+    getNewScram = true;
+    addToHistory();
+  }
+}
+
+function addToHistory() {
+  const mode = document.getElementById("mode").options[document.getElementById("mode").selectedIndex].text;
+  const level = document.getElementById("level").value;
+  const scramble = currCase.givenScram;
+  const time = currentTime > 0 ? currentTime.toFixed(2) : "-";
+  const moves = "-";
+
+  const row = historyTable.insertRow(0);
+  [mode, level, scramble, time, moves].forEach(text => {
+    const cell = row.insertCell();
+    cell.textContent = text;
+    cell.contentEditable = true;
+  });
+  
+  showAllHistory = false;
+  updateHistoryVisibility();
+}
+
+function exportSession() {
+  let csv = "Mode,Level,Scramble,Time,Moves\n";
+  for (let row of historyTable.rows) {
+    const cells = Array.from(row.cells).map(td => td.textContent.replace(/,/g, ";"));
+    csv += cells.join(",") + "\n";
+  }
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "session_history.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function resetSession() {
+
+}
+
+function loadLocal() {
+  
+}
+
+timerContainer.addEventListener("click", function() {
+  if (!getNewScram && !timerUsed) {
+    if (!timerRunning) {
+      startTimer();
+    } else {
+      stopTimer();
+    }
+  }
+});
+
+document.onkeydown = function (e) {
+  switch (e.key) {
+    case " ":
+      if (!getNewScram && !timerUsed) {
+        if (!timerRunning) {
+          startTimer();
+        } else {
+          stopTimer();
+        }
+      }
+      break;
+    case "Enter":
+      if (timerRunning) {
+        stopTimer();
+        setTimeout(() => {
+          nextBtn.click();
+        }, 50);
+      } else {
+        nextBtn.click();
+      }
+      break;
+  }
+};
+
+showMoreBtn.addEventListener("click", function() {
+  showAllHistory = true;
+  updateHistoryVisibility();
+});
+
+nextBtn.onclick = nextPhase;
+newImage("", imgMasks["lb"]);

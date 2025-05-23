@@ -1,1 +1,0 @@
-Trainer for 0-move FB and (soon) CPFB.
