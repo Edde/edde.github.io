@@ -1,6 +1,6 @@
 const zeroPuzzle = new Puzzle(standardMoves, zeroSolved, movesets.zeroMoves, zeroPruneTable, 7, 5);
 const cpfbPuzzle = new Puzzle(cpMoves, cpfbSolved, movesets.fullSimple, cpfbPruneTable, 5, 4);
-const zeroPuzzleSimple = new Puzzle(standardMoves, zeroSolved, movesets.zeroSimple, zeroPruneTableNo, 7, 5);
+const zeroPuzzleSimple = new Puzzle(standardMoves, zeroSolved, movesets.zeroSimple, zeroPruneTable, 7, 5);
 const rbPuzzle = new Puzzle(standardMoves, rbSolved, movesets.ruMoves, rbPruneTable, 10, 4);
 
 let getNewScram = true;
