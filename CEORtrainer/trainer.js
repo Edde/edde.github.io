@@ -310,7 +310,7 @@ class Puzzle {
         console.log(pruneTable.size);
         this.pruneTable = pruneTable;
         this.pruneDepth = maxDepth;
-        let testObj = Object.fromEntries(this.pruneTable);
+        /*let testObj = Object.fromEntries(this.pruneTable);
         let testStr = JSON.stringify(testObj);
         function download(content, fileName, contentType) {
             var a = document.createElement("a");
@@ -319,7 +319,7 @@ class Puzzle {
             a.download = fileName;
             a.click();
         }
-        download(testStr, 'rightBlockRU.js', 'text/plain');
+        download(testStr, 'rightBlockRU.js', 'text/plain');*/
     }
     compressState(state) {
         return String.fromCharCode(state[0] >>> 16, state[0], state[1] >>> 16, state[1])
@@ -344,54 +344,44 @@ class Puzzle {
         let solLen = scram.length;
         let scramState = [];
         this.executeSeq(this.baseState, scram, scramState);
-        if ((solLen-this.pruneDepth <= 0) && (disallowedFirst.length == 0)) {
-            if (this.pruneTable.has(compressState(scramState))) {
-                let fullSol = invertAlg(this.pruneTable.get(compressState(scramState)));
+        if (this.pruneTable.has(compressState(scramState))) {
+            let fullSol = invertAlg(this.pruneTable.get(compressState(scramState)));
+            let acceptSeq = true;
+            if (disallowedFirst) {
+                if (fullSol[0][0].toLowerCase() == disallowedFirst[0].toLowerCase()) {
+                    acceptSeq = false;
+                }
+            }
+            if (acceptSeq) {
                 solutions.push(fullSol);
                 solLen = fullSol.length;
             }
-            for (let searchSeq of this.generateSeq(1)) {
-                let candState = [];
-                this.executeSeq(scramState, searchSeq, candState);
-                candState = compressState(candState);
-                if (this.pruneTable.has(candState)) {
-                    let fullSol = searchSeq.concat(invertAlg(this.pruneTable.get(candState)));
-                    if (fullSol.length == solLen) {
-                        solutions.push(fullSol);
-                        solLen = fullSol.length;
-                    }
-                    if (solutions.length == maxSols) {
-                        return solutions;
+        }
+        for (let i=1, continueSearch=true; i<=this.searchMax && continueSearch; i++) {
+            for (let searchSeq of this.generateSeq(i)) {
+                let acceptSeq = true;
+                if (disallowedFirst) {
+                    if (searchSeq[0][0].toLowerCase() == disallowedFirst[0].toLowerCase()) {
+                        acceptSeq = false;
                     }
                 }
-            }
-        } else {
-            for (let i=1, continueSearch=true; i<=this.searchMax && continueSearch; i++) {
-                for (let searchSeq of this.generateSeq(i)) {
-                    let acceptSeq = true;
-                    if (disallowedFirst) {
-                        if (searchSeq[0][0] == disallowedFirst[0]) {
-                            acceptSeq = false;
+                if (acceptSeq) {
+                    let candState = [];
+                    this.executeSeq(scramState, searchSeq, candState);
+                    candState = compressState(candState);
+                    if (this.pruneTable.has(candState)) {
+                        let fullSol = searchSeq.concat(invertAlg(this.pruneTable.get(candState)));
+                        if (fullSol.length < solLen) {
+                            solutions = [];
                         }
-                    }
-                    if (acceptSeq) {
-                        let candState = [];
-                        this.executeSeq(scramState, searchSeq, candState);
-                        candState = compressState(candState);
-                        if (this.pruneTable.has(candState)) {
-                            let fullSol = searchSeq.concat(invertAlg(this.pruneTable.get(candState)));
-                            if (fullSol.length < solLen) {
-                                solutions = [];
-                            }
-                            if (fullSol.length <= solLen) {
-                                solutions.push(fullSol);
-                                solLen = fullSol.length;
-                            }
-                            if (solutions.length == maxSols) {
-                                return solutions;
-                            }
-                            continueSearch=false;
+                        if (fullSol.length <= solLen) {
+                            solutions.push(fullSol);
+                            solLen = fullSol.length;
                         }
+                        if (solutions.length == maxSols) {
+                            return solutions;
+                        }
+                        continueSearch=false;
                     }
                 }
             }

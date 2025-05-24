@@ -6,7 +6,6 @@ const fbPuzzle = new Puzzle(standardMoves, zeroSolved, movesets.fullSimple, fbPr
 
 let getNewScram = true;
 let currMode = "zeroMoveS";
-let currImgMask = imgMasks.fb;
 let currCase = {};
 let leftMode = false;
 let timerRunning = false;
