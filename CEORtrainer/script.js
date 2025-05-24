@@ -275,6 +275,6 @@ showMoreBtn.addEventListener("click", function() {
   updateHistoryVisibility();
 });
 
-nextBtn.onclick = nextPhase;
+nextBtn.onclick = function(){nextPhase(); this.blur();};
 newImage("", imgMasks["lb"]);
 fillHistory();
