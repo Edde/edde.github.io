@@ -11,8 +11,8 @@ function invertAlg(alg) {
     }
     return inverse;
 }
-function leftAlg(alg) {
-    let leftAlg = [];
+function mirrorAlg(alg) {
+    let returnAlg = [];
     for (let i = 0; i < alg.length; i++) {
         let turnStr = alg[i][0];
         switch (turnStr) {
@@ -30,14 +30,14 @@ function leftAlg(alg) {
                 break;
         }
         if (alg[i][alg[i].length-1] == "2") {
-            leftAlg.push(turnStr + "2");
+            returnAlg.push(turnStr + "2");
         } else if (alg[i][alg[i].length-1] == "'") {
-            leftAlg.push(turnStr);
+            returnAlg.push(turnStr);
         } else {
-            leftAlg.push(turnStr+"'");
+            returnAlg.push(turnStr+"'");
         }
     }
-    return leftAlg;
+    return returnAlg;
 }
 function countSQTM(alg) {
     let sqtmLen = 0;
@@ -356,6 +356,9 @@ class Puzzle {
                 solutions.push(fullSol);
                 solLen = fullSol.length;
             }
+            if (solutions.length == maxSols) {
+                return solutions;
+            }
         }
         for (let i=1, continueSearch=true; i<=this.searchMax && continueSearch; i++) {
             for (let searchSeq of this.generateSeq(i)) {
@@ -370,18 +373,21 @@ class Puzzle {
                     this.executeSeq(scramState, searchSeq, candState);
                     candState = compressState(candState);
                     if (this.pruneTable.has(candState)) {
-                        let fullSol = searchSeq.concat(invertAlg(this.pruneTable.get(candState)));
-                        if (fullSol.length < solLen) {
-                            solutions = [];
+                        let pruneSol = invertAlg(this.pruneTable.get(candState));
+                        if ((pruneSol[0][0] != searchSeq[searchSeq.length-1][0]) && (pruneSol[0][0].toLowerCase() != searchSeq[searchSeq.length-1][0])) {
+                            let fullSol = searchSeq.concat(pruneSol);
+                            if (fullSol.length < solLen) {
+                                solutions = [];
+                            }
+                            if (fullSol.length <= solLen) {
+                                solutions.push(fullSol);
+                                solLen = fullSol.length;
+                            }
+                            if (solutions.length == maxSols) {
+                                return solutions;
+                            }
+                            continueSearch=false;
                         }
-                        if (fullSol.length <= solLen) {
-                            solutions.push(fullSol);
-                            solLen = fullSol.length;
-                        }
-                        if (solutions.length == maxSols) {
-                            return solutions;
-                        }
-                        continueSearch=false;
                     }
                 }
             }
@@ -389,6 +395,7 @@ class Puzzle {
         if (solutions.length == 0) {
             console.log("no solutions");
         }
+        solutions.sort(function(a,b){return countSQTM(b)-countSQTM(a)});
         return solutions;
     }
     findLongSol(scram, extraMoves) {

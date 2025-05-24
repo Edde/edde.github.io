@@ -7,13 +7,14 @@ const fbPuzzle = new Puzzle(standardMoves, zeroSolved, movesets.fullSimple, fbPr
 let getNewScram = true;
 let currMode = "zeroMoveS";
 let currCase = {};
-let leftMode = false;
+let rightMode = false;
 let timerRunning = false;
 let timerStartTime;
 let timerInterval;
 let currentTime = 0;
 let timerUsed = false;
 let showAllHistory = false;
+const historyData = JSON.parse(localStorage.getItem("history")) ?? [];
 const maxVisibleHistory = 5;
 
 const nextBtn = document.getElementById("nextBtn");
@@ -140,12 +141,12 @@ function nextPhase() {
         maskChoice = "lb";
         break;
     }
-    if (document.getElementById("leftmode").checked) {
-      currCase.givenScram = leftAlg(currCase.givenScram.split(" ")).join(" ");
-      leftMode = true;
+    if (document.getElementById("righthand").checked) {
+      currCase.givenScram = mirrorAlg(currCase.givenScram.split(" ")).join(" ");
+      rightMode = true;
       maskChoice = (maskChoice == "lb") ? "rb" : "lb";
     } else {
-      leftMode = false;
+      rightMode = false;
     }
     document.getElementById("scramStr").textContent = currCase.givenScram;
     document.getElementById("solStr").innerHTML = "";
@@ -156,12 +157,12 @@ function nextPhase() {
     currentTime = 0;
     timerUsed = false;
   } else {
-    if (leftMode) {
-      let leftSols = [];
+    if (rightMode) {
+      let rightSols = [];
       for (sol of currCase.solutions) {
-        leftSols.push(leftAlg(sol.split(" ")).join(" "));
+        rightSols.push(mirrorAlg(sol.split(" ")).join(" "));
       }
-      document.getElementById("solStr").innerHTML = leftSols.join("<br>");
+      document.getElementById("solStr").innerHTML = rightSols.join("<br>");
     } else {
       document.getElementById("solStr").innerHTML = currCase.solutions.join("<br>");
     }
@@ -179,14 +180,22 @@ function addToHistory() {
   const moves = "-";
 
   const row = historyTable.insertRow(0);
+  row.oninput = function(){updateRow(this);};
   [mode, level, scramble, time, moves].forEach(text => {
     const cell = row.insertCell();
     cell.textContent = text;
     cell.contentEditable = true;
   });
-  
+  historyData.push([mode, level, scramble, time, moves]);
+  localStorage.setItem("history", JSON.stringify(historyData));
   showAllHistory = false;
   updateHistoryVisibility();
+}
+
+function updateRow(rowObj) {
+  let newRow = Array.from(rowObj.cells).map(td => td.textContent);
+  historyData[historyData.length-rowObj.rowIndex] = newRow;
+  localStorage.setItem("history", JSON.stringify(historyData));
 }
 
 function exportSession() {
@@ -206,11 +215,25 @@ function exportSession() {
 }
 
 function resetSession() {
-
+  for (let i=historyTable.rows.length-1; i>=0; i--) {
+    historyTable.deleteRow(i);
+    historyData.pop();
+  }
+  localStorage.setItem("history", JSON.stringify(historyData));
+  updateHistoryVisibility();
 }
 
-function loadLocal() {
-  
+function fillHistory() {
+  for (let rowData of historyData) {
+    const row = historyTable.insertRow(0);
+    row.oninput = function(){updateRow(this);};
+    rowData.forEach(text => {
+      const cell = row.insertCell();
+      cell.textContent = text;
+      cell.contentEditable = true;
+    }); 
+  }
+  updateHistoryVisibility();
 }
 
 timerContainer.addEventListener("click", function() {
@@ -254,3 +277,4 @@ showMoreBtn.addEventListener("click", function() {
 
 nextBtn.onclick = nextPhase;
 newImage("", imgMasks["lb"]);
+fillHistory();
