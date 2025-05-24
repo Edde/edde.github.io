@@ -2,6 +2,7 @@ const zeroPuzzle = new Puzzle(standardMoves, zeroSolved, movesets.zeroMoves, zer
 const cpfbPuzzle = new Puzzle(cpMoves, cpfbSolved, movesets.fullSimple, cpfbPruneTable, 5, 4);
 const zeroPuzzleSimple = new Puzzle(standardMoves, zeroSolved, movesets.zeroSimple, zeroPruneTableNoS, 7, 5);
 const rbPuzzle = new Puzzle(standardMoves, rbSolved, movesets.ruMoves, rbPruneTable, 10, 4);
+const fbPuzzle = new Puzzle(standardMoves, zeroSolved, movesets.fullSimple, fbPruneTable, 5, 4);
 
 let getNewScram = true;
 let currMode = "zeroMoveS";
@@ -91,8 +92,8 @@ function updateMode() {
     case "rb":
       maxLevel = 11;
       break;
-    case "zeroMoveSLeft":
-      maxLevel = 9;
+    case "fb":
+      maxLevel = 8;
       break;
   };
   if (document.getElementById("level").value > maxLevel) {
@@ -134,6 +135,10 @@ function nextPhase() {
       case "rb":
         currCase = rbPuzzle.getMinMoveScrams(level, 5, []);
         maskChoice = "rb";
+        break;
+      case "fb":
+        currCase = fbPuzzle.getMinMoveScrams(level, 5, []);
+        maskChoice = "lb";
         break;
     }
     if (document.getElementById("leftmode").checked) {
