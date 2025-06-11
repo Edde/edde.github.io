@@ -310,16 +310,6 @@ class Puzzle {
         console.log(pruneTable.size);
         this.pruneTable = pruneTable;
         this.pruneDepth = maxDepth;
-        /*let testObj = Object.fromEntries(this.pruneTable);
-        let testStr = JSON.stringify(testObj);
-        function download(content, fileName, contentType) {
-            var a = document.createElement("a");
-            var file = new Blob([content], {type: contentType});
-            a.href = URL.createObjectURL(file);
-            a.download = fileName;
-            a.click();
-        }
-        download(testStr, 'rightBlockRU.js', 'text/plain');*/
     }
     compressState(state) {
         return String.fromCharCode(state[0] >>> 16, state[0], state[1] >>> 16, state[1])

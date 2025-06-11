@@ -1,9 +1,10 @@
-const zeroPuzzle = new Puzzle(standardMoves, zeroSolved, movesets.zeroMoves, zeroPruneTable, 7, 5);
-const cpfbPuzzle = new Puzzle(cpMoves, cpfbSolved, movesets.fullSimple, cpfbPruneTable, 5, 4);
-const zeroPuzzleSimple = new Puzzle(standardMoves, zeroSolved, movesets.zeroSimple, zeroPruneTableNoS, 7, 5);
-const rbPuzzle = new Puzzle(standardMoves, rbSolved, movesets.ruMoves, rbPruneTable, 10, 4);
-const fbPuzzle = new Puzzle(standardMoves, zeroSolved, movesets.fullSimple, fbPruneTable, 5, 4);
-const ssPuzzle = new Puzzle(standardMoves, SSSolved, movesets.RUrMoves, SSPruneTable, 7, 4);
+const zeroPuzzle = new Puzzle(standardMoves, solvedStates.lb, movesets.zeroMoves, zeroPruneTable, 7, 5);
+const cpfbPuzzle = new Puzzle(cpMoves, solvedStates.cpfb, movesets.fullSimple, cpfbPruneTable, 5, 4);
+const zeroPuzzleSimple = new Puzzle(standardMoves, solvedStates.lb, movesets.zeroSimple, zeroPruneTableNoS, 7, 5);
+const rbPuzzle = new Puzzle(standardMoves, solvedStates.rb, movesets.ruMoves, rbPruneTable, 10, 4);
+const fbPuzzle = new Puzzle(standardMoves, solvedStates.lb, movesets.fullSimple, fbPruneTable, 5, 4);
+const ssPuzzle = new Puzzle(standardMoves, solvedStates.ss, movesets.RUrMoves, SSPruneTable, 7, 4);
+const twoPuzzle = new Puzzle(standardMoves, solvedStates.twoB, movesets.RUrMoves, twoBPruneTable, 8, 4);
 
 let getNewScram = true;
 let currMode = "zeroMoveS";
@@ -99,6 +100,9 @@ function updateMode() {
     case "ss":
       maxLevel = 9;
       break;
+    case "twob":
+      maxLevel = 10;
+      break;
   };
   if (document.getElementById("level").value > maxLevel) {
     document.getElementById(maxLevel).selected = true;
@@ -147,6 +151,10 @@ function nextPhase() {
       case "ss":
         currCase = ssPuzzle.getMinMoveScrams(level, 5, []);
         maskChoice = "rss";
+        break;
+      case "twob":
+        currCase = twoPuzzle.getMinMoveScrams(level, 5, []);
+        maskChoice = "rtwo";
         break;
     }
     if (document.getElementById("righthand").checked) {
