@@ -3,6 +3,7 @@ const cpfbPuzzle = new Puzzle(cpMoves, cpfbSolved, movesets.fullSimple, cpfbPrun
 const zeroPuzzleSimple = new Puzzle(standardMoves, zeroSolved, movesets.zeroSimple, zeroPruneTableNoS, 7, 5);
 const rbPuzzle = new Puzzle(standardMoves, rbSolved, movesets.ruMoves, rbPruneTable, 10, 4);
 const fbPuzzle = new Puzzle(standardMoves, zeroSolved, movesets.fullSimple, fbPruneTable, 5, 4);
+const ssPuzzle = new Puzzle(standardMoves, SSSolved, movesets.RUrMoves, SSPruneTable, 7, 4);
 
 let getNewScram = true;
 let currMode = "zeroMoveS";
@@ -95,6 +96,9 @@ function updateMode() {
     case "fb":
       maxLevel = 8;
       break;
+    case "ss":
+      maxLevel = 9;
+      break;
   };
   if (document.getElementById("level").value > maxLevel) {
     document.getElementById(maxLevel).selected = true;
@@ -140,11 +144,15 @@ function nextPhase() {
         currCase = fbPuzzle.getMinMoveScrams(level, 5, []);
         maskChoice = "lb";
         break;
+      case "ss":
+        currCase = ssPuzzle.getMinMoveScrams(level, 5, []);
+        maskChoice = "rss";
+        break;
     }
     if (document.getElementById("righthand").checked) {
       currCase.givenScram = mirrorAlg(currCase.givenScram.split(" ")).join(" ");
       rightMode = true;
-      maskChoice = (maskChoice == "lb") ? "rb" : "lb";
+      maskChoice = (maskChoice[0] == "l") ? "r"+maskChoice.slice(1) : "l"+maskChoice.slice(1);
     } else {
       rightMode = false;
     }

@@ -374,6 +374,9 @@ class Puzzle {
                     candState = compressState(candState);
                     if (this.pruneTable.has(candState)) {
                         let pruneSol = invertAlg(this.pruneTable.get(candState));
+                        if (pruneSol.length == 0) {
+                            return [];
+                        }
                         if ((pruneSol[0][0] != searchSeq[searchSeq.length-1][0]) && (pruneSol[0][0].toLowerCase() != searchSeq[searchSeq.length-1][0])) {
                             let fullSol = searchSeq.concat(pruneSol);
                             if (fullSol.length < solLen) {
