@@ -5,6 +5,7 @@ const rbPuzzle = new Puzzle(standardMoves, solvedStates.rb, movesets.ruMoves, rb
 const fbPuzzle = new Puzzle(standardMoves, solvedStates.lb, movesets.fullSimple, fbPruneTable, 5, 4);
 const ssPuzzle = new Puzzle(standardMoves, solvedStates.ss, movesets.RUrMoves, SSPruneTable, 7, 4);
 const twoPuzzle = new Puzzle(standardMoves, solvedStates.twoB, movesets.RUrMoves, twoBPruneTable, 8, 4);
+const extPuzzle = new Puzzle(standardMoves, solvedStates.lb, movesets.zeroSimple, extPruneTable, 5, 3);
 
 let getNewScram = true;
 let currMode = "zeroMoveS";
@@ -103,6 +104,9 @@ function updateMode() {
     case "twob":
       maxLevel = 10;
       break;
+    case "ext":
+      maxLevel = 8;
+      break;
   };
   if (document.getElementById("level").value > maxLevel) {
     document.getElementById(maxLevel).selected = true;
@@ -155,6 +159,10 @@ function nextPhase() {
       case "twob":
         currCase = twoPuzzle.getMinMoveScrams(level, 5, []);
         maskChoice = "rtwo";
+        break;
+      case "ext":
+        currCase = extPuzzle.getMinMoveScrams(level, 5, []);
+        maskChoice = "lb";
         break;
     }
     if (document.getElementById("righthand").checked) {
