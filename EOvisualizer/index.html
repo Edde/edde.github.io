@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="Edde">
+        <title>EOvisualizer</title>
+        <script src="puzzleGen.min.js"></script>
+        <script src="cube.js"></script>
+        <style>
+            .center {
+                margin: auto;
+                width: 50%;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <div class="center" id="inputSection">
+                <label for="algText">Algorithm to solve EO</label>
+                <input type="text" id="algText" name="algText">
+                <label for="showDR">Highlight DR:</label>
+                <input type="checkbox" id="showDR" name="showDR">
+                <label for="showCycles">Show cycles:</label>
+                <input type="checkbox" id="showCycles" name="showCycles">
+                <button type="button" onclick="analyzeAlg();">Check</button>
+            </div>
+            <div class="center" id="imgMain"></div>
+        </div>
+        <script src="script.js"></script>
+    </body>
+</html>
