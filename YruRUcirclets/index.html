@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="Edde">
+        <title>YruRU circlets</title>
+        <script src="srVisualizer.min.js"></script>
+        <script src="circlets.js"></script>
+        <style>
+            .center {
+                margin: auto;
+                width: 50%;
+            }
+            #imgMain {
+                position: relative;
+                display: inline;
+            }
+            img {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            svg {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="center">
+            <div id="inputSection">
+                <label for="corFive">Corner 5:</label>
+                <select id="corFive" name="corFive" onchange="updateImg()">
+                    <option value="ufl">UFL</option>
+                    <option value="ubl">UBL</option>
+                    <option value="ubr">UBR</option>
+                    <option value="ufr">UFR</option>
+                    <option value="dfr" selected>DFR</option>
+                    <option value="dbr">DBR</option>
+                </select>
+                <label for="corSix">Corner 6:</label>
+                <select id="corSix" name="corSix" onchange="updateImg()">
+                    <option value="ufl">UFL</option>
+                    <option value="ubl">UBL</option>
+                    <option value="ubr">UBR</option>
+                    <option value="ufr">UFR</option>
+                    <option value="dfr">DFR</option>
+                    <option value="dbr" selected>DBR</option>
+                </select>
+            </div>
+            <div id="imgMain"></div>
+        </div>
+        <script>
+            let SRVisualizer;
+            const faceletIndices = {
+                "ufl":[6,18],
+                "ubl":[0],
+                "ubr":[2,11],
+                "ufr":[8,9,20],
+                "dfr":[15,26],
+                "dbr":[17]
+            };
+            function updateImg() {
+                let cornerFive = document.getElementById("corFive").value;
+                let cornerSix = document.getElementById("corSix").value;
+                if (cornerFive != cornerSix) {
+                    let options = {"width": 300, "height": 300, "facelets": ["n","n","n","n","n","n","n","n","n","n","n","n","n","n","n","n","n","n","n","n","n","n","n","n","f","n","n","d","d","d","d","d","d","d","d","d","l","l","l","l","l","l","l","l","l","b","b","b","b","b","b","b","b","b" ]};
+                    for (let i of faceletIndices[cornerFive]) {
+                        options["facelets"][i] = "b";
+                    }
+                    for (let i of faceletIndices[cornerSix]) {
+                        options["facelets"][i] = "r";
+                    }
+                    arrowInfo = getArrows(cornerFive, cornerSix);
+                    options["arrows"] = arrowInfo["arrows"];
+                    document.getElementById('imgMain').innerHTML = "";
+                    SRVisualizer.cubeSVG(document.getElementById('imgMain'), options);
+                    if (arrowInfo["overlay"]) {
+                        let imgObj = document.createElement("img");
+                        imgObj.setAttribute("width", 300);
+                        imgObj.setAttribute("height", 300);
+                        imgObj.setAttribute("src", arrowInfo["overlay"]+".png");
+                        document.getElementById('imgMain').appendChild(imgObj);
+                    }
+                }
+            };
+            document.addEventListener("DOMContentLoaded", function(event) {
+                SRVisualizer = window['sr-visualizer'];
+                updateImg();
+            });
+        </script>
+    </body>
+</html>
