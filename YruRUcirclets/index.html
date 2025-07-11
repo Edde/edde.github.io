@@ -7,7 +7,6 @@
         <meta name="author" content="Edde">
         <title>YruRU circlets</title>
         <script src="srVisualizer.min.js"></script>
-        <script src="circlets.js"></script>
         <style>
             .center {
                 margin: auto;
@@ -54,6 +53,38 @@
             <div id="imgMain"></div>
         </div>
         <script>
+            const circlets = {
+                "dfr_dbr": {"arrows":"U8U6-s5-ffffff,U6U0-s5-ffffff,U0U2-s5-ffffff,U2U8-s5-ffffff"},
+                "dbr_dfr": {"arrows":"U2U0-s5-ffffff,U0U6-s5-ffffff,U6U8-s5-ffffff,U8U2-s5-ffffff"},
+                "ufr_ufl": {"arrows":"U0U2-s5-ffffff,R2R6-s5-ffffff,R6R8-s5-ffffff"},
+                "ufl_ufr": {"arrows":"R8R6-s5-ffffff,R6R2-s5-ffffff,U2U0-s5-ffffff"},
+                "ufr_ubl": {"arrows":"F0F8-s5-ffffff,R6R2-s5-ffffff,R2R8-s5-ffffff"},
+                "ubl_ufr": {"arrows":"R8R2-s5-ffffff,R2R6-s5-ffffff,F8F0-s5-ffffff"},
+                "ufr_ubr": {"arrows":"U0U6-s5-ffffff,R8R6-s5-ffffff","overlay":"R6U0.png"},
+                "ubr_ufr": {"arrows":"R6R8-s5-ffffff,U6U0-s5-ffffff","overlay":"U0R6.png"},
+                "ufl_ubl": {"arrows":"R2R0-s5-ffffff,R0R6-s5-ffffff,R6R8-s5-ffffff,R8R2-s5-ffffff"},
+                "ubl_ufl": {"arrows":"R8R6-s5-ffffff,R6R0-s5-ffffff,R0R2-s5-ffffff,R2R8-s5-ffffff"},
+                "ufl_ubr": {"arrows":"R0R8-s5-ffffff,R6R0-s5-ffffff","overlay":"R8U0.png"},
+                "ubr_ufl": {"arrows":"R8R0-s5-ffffff,R0R6-s5-ffffff","overlay":"U0R8.png"},
+                "ubl_ubr": {"arrows":"U8U6-s5-ffffff,F0F8-s5-ffffff,R6R8-s5-ffffff,R8R0-s5-ffffff"},
+                "ubr_ubl": {"arrows":"R8R6-s5-ffffff,F8F0-s5-ffffff,F0F2-s5-ffffff,R0R8-s5-ffffff"},
+                "ufr_dfr": {"arrows":"U6U0-s5-ffffff,R8R2-s5-ffffff,U2U6-s5-ffffff"},
+                "dfr_ufr": {"arrows":"R2R8-s5-ffffff,U0U6-s5-ffffff,U6U2-s5-ffffff"},
+                "ufr_dbr": {"arrows":"U6U2-s5-ffffff,U2U0-s5-ffffff,F8F0-s5-ffffff"},
+                "dbr_ufr": {"arrows":"U0U2-s5-ffffff,U2U6-s5-ffffff,F0F8-s5-ffffff"},
+                "ufl_dfr": {"arrows":"U8U0-s5-ffffff,U0U2-s5-ffffff,R2R8-s5-ffffff,R8R0-s5-ffffff"},
+                "dfr_ufl": {"arrows":"R8R2-s5-ffffff,U2U0-s5-ffffff,U0U8-s5-ffffff,R0R8-s5-ffffff"},
+                "ufl_dbr": {"arrows":"U8U2-s5-ffffff,R2R6-s5-ffffff,U0U8-s5-ffffff"},
+                "dbr_ufl": {"arrows":"R6R2-s5-ffffff,U2U8-s5-ffffff,U8U0-s5-ffffff"},
+                "ubl_dfr": {"arrows":"R0R8-s5-ffffff,U6U2-s5-ffffff,U2U8-s5-ffffff"},
+                "dfr_ubl": {"arrows":"U2U6-s5-ffffff,R8R0-s5-ffffff,R0R2-s5-ffffff"},
+                "ubl_dbr": {"arrows":"F2F8-s5-ffffff,R6R2-s5-ffffff,U2U6-s5-ffffff,F0F2-s5-ffffff"},
+                "dbr_ubl": {"arrows":"U6U2-s5-ffffff,R2R6-s5-ffffff,F2F0-s5-ffffff,F8F2-s5-ffffff"},
+                "ubr_dfr": {"arrows":"U8U6-s5-ffffff,U0U8-s5-ffffff","overlay":"R8U0.png"},
+                "dfr_ubr": {"arrows":"U6U8-s5-ffffff,U8U0-s5-ffffff","overlay":"U0R8.png"},
+                "ubr_dbr": {"arrows":"U8U0-s5-ffffff,U0U6-s5-ffffff,F0F8-s5-ffffff,F8F2-s5-ffffff"},
+                "dbr_ubr": {"arrows":"F8F0-s5-ffffff,U6U0-s5-ffffff,U0U8-s5-ffffff,F2F8-s5-ffffff"}
+            }
             let SRVisualizer;
             const faceletIndices = {
                 "ufl":[6,18],
@@ -74,15 +105,14 @@
                     for (let i of faceletIndices[cornerSix]) {
                         options["facelets"][i] = "r";
                     }
-                    arrowInfo = getArrows(cornerFive, cornerSix);
-                    options["arrows"] = arrowInfo["arrows"];
+                    options["arrows"] = circlets[cornerFive+"_"+cornerSix]["arrows"];
                     document.getElementById('imgMain').innerHTML = "";
                     SRVisualizer.cubeSVG(document.getElementById('imgMain'), options);
-                    if (arrowInfo["overlay"]) {
+                    if ("overlay" in circlets[cornerFive+"_"+cornerSix]) {
                         let imgObj = document.createElement("img");
                         imgObj.setAttribute("width", 300);
                         imgObj.setAttribute("height", 300);
-                        imgObj.setAttribute("src", arrowInfo["overlay"]+".png");
+                        imgObj.setAttribute("src", circlets[cornerFive+"_"+cornerSix]["overlay"]);
                         document.getElementById('imgMain').appendChild(imgObj);
                     }
                 }
